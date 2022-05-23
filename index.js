@@ -12,13 +12,30 @@ app.use(express.json());
 // MongoDB Connection
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.l4rez.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
-client.connect(err => {
-    const collection = client.db("test").collection("devices");
-    // perform actions on the collection object
-    console.log('MongoDB Connected');
-    client.close();
-});
 
+// running MongoDB here
+async function run() {
+    try {
+
+        await client.connect();
+
+        // collections
+        const partCollection = client.db('cars-arena').collection('parts');
+
+        console.log('MongoDB Connected');
+
+        // GET API to get first 6 parts
+        app.get('/parts', async (req, res) => {
+            const query = {};
+            const parts = await partCollection.find(query).limit(6).toArray();
+            res.send(parts);
+        });
+
+    } finally {
+
+    }
+}
+run().catch(console.dir);
 
 // Base API
 app.get('/', (req, res) => {
