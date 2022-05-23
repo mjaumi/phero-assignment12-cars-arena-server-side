@@ -1,3 +1,4 @@
 # Ignore File List
 
 node_modules
+.env
