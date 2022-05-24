@@ -3,6 +3,7 @@ const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const app = express();
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const port = process.env.PORT || 5000;
 
 // middleware
@@ -45,8 +46,22 @@ async function run() {
         app.get('/user', async (req, res) => {
             const email = req.query.email;
             const query = { email };
-            const findResult = await userCollection.findOne(query);
-            res.send(findResult);
+            const foundUser = await userCollection.findOne(query);
+            res.send(foundUser);
+        });
+
+        app.get('/orders', async (req, res) => {
+            const email = req.query.email;
+            const query = { email };
+            const foundOrders = await orderCollection.find(query).toArray();
+            res.send(foundOrders);
+        });
+
+        app.get('/order/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const foundOrder = await orderCollection.findOne(query);
+            res.send(foundOrder);
         });
 
         // POST API to create new user
@@ -61,6 +76,19 @@ async function run() {
             const newOrder = req.body;
             const addOrderResult = await orderCollection.insertOne(newOrder);
             res.send(addOrderResult);
+        });
+
+        // POST API for client secret of stripe
+        app.post('/create-payment-intent', async (req, res) => {
+            const order = req.body;
+            const price = order.price;
+            const amount = price * 100;
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
+                currency: 'usd',
+                payment_method_types: ['card']
+            });
+            res.send({ clientSecret: paymentIntent.client_secret });
         });
 
         // PATCH API to update user info
