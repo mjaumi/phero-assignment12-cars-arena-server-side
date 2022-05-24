@@ -40,11 +40,37 @@ async function run() {
             res.send(parts);
         });
 
+        // GET API to get specific user info
+        app.get('/user', async (req, res) => {
+            const email = req.query.email;
+            const query = { email };
+            const findResult = await userCollection.findOne(query);
+            res.send(findResult);
+        });
+
         // POST API to create new user
         app.post('/user', async (req, res) => {
             const newUser = req.body;
             const addUserResult = await userCollection.insertOne(newUser);
             res.send(addUserResult);
+        });
+
+        // PATCH API to update user info
+        app.patch('/user', async (req, res) => {
+            const email = req.query.email;
+            const updatedBody = req.body;
+            const filter = { email };
+            const updatedUser = {
+                $set: {
+                    education: updatedBody.education,
+                    city: updatedBody.city,
+                    phone: updatedBody.phone,
+                    linkedIn: updatedBody.linkedIn,
+                    address: updatedBody.address
+                }
+            }
+            const updateUser = await userCollection.updateOne(filter, updatedUser);
+            res.send(updateUser);
         });
 
     } finally {
