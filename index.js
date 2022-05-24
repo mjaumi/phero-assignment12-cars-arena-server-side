@@ -22,6 +22,7 @@ async function run() {
         // collections
         const partCollection = client.db('cars-arena').collection('parts');
         const userCollection = client.db('cars-arena').collection('users');
+        const orderCollection = client.db('cars-arena').collection('orders');
 
         console.log('MongoDB Connected');
 
@@ -53,6 +54,13 @@ async function run() {
             const newUser = req.body;
             const addUserResult = await userCollection.insertOne(newUser);
             res.send(addUserResult);
+        });
+
+        // POST API for new orders
+        app.post('/order', async (req, res) => {
+            const newOrder = req.body;
+            const addOrderResult = await orderCollection.insertOne(newOrder);
+            res.send(addOrderResult);
         });
 
         // PATCH API to update user info
