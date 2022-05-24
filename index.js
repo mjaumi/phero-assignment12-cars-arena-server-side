@@ -21,6 +21,7 @@ async function run() {
 
         // collections
         const partCollection = client.db('cars-arena').collection('parts');
+        const userCollection = client.db('cars-arena').collection('users');
 
         console.log('MongoDB Connected');
 
@@ -37,7 +38,14 @@ async function run() {
             const query = { _id: ObjectId(id) };
             const parts = await partCollection.findOne(query);
             res.send(parts);
-        })
+        });
+
+        // POST API to create new user
+        app.post('/user', async (req, res) => {
+            const newUser = req.body;
+            const addUserResult = await userCollection.insertOne(newUser);
+            res.send(addUserResult);
+        });
 
     } finally {
 
@@ -47,7 +55,7 @@ run().catch(console.dir);
 
 // Base API
 app.get('/', (req, res) => {
-    res.send('Car Bazar Server Running!!!');
+    res.send('Cars Arena Server Running!!!');
 });
 
 // Listening API
