@@ -29,10 +29,17 @@ async function run() {
         console.log('MongoDB Connected');
 
         // GET API to get first 6 parts
-        app.get('/parts', async (req, res) => {
+        app.get('/topSixParts', async (req, res) => {
             const query = {};
             const firstSixParts = await partCollection.find(query).limit(6).toArray();
             res.send(firstSixParts);
+        });
+
+        // GET API to get all parts
+        app.get('/parts', async (req, res) => {
+            const query = {};
+            const parts = await partCollection.find(query).toArray();
+            res.send(parts);
         });
 
         // GET API to get any parts by id
