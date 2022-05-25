@@ -24,6 +24,7 @@ async function run() {
         const partCollection = client.db('cars-arena').collection('parts');
         const userCollection = client.db('cars-arena').collection('users');
         const orderCollection = client.db('cars-arena').collection('orders');
+        const reviewCollection = client.db('cars-arena').collection('reviews');
 
         console.log('MongoDB Connected');
 
@@ -50,6 +51,7 @@ async function run() {
             res.send(foundUser);
         });
 
+        // GET API to get orders by email
         app.get('/orders', async (req, res) => {
             const email = req.query.email;
             const query = { email };
@@ -57,11 +59,19 @@ async function run() {
             res.send(foundOrders);
         });
 
+        // GET API to get specific order by id
         app.get('/order/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const foundOrder = await orderCollection.findOne(query);
             res.send(foundOrder);
+        });
+
+        // GET API to get all the reviews
+        app.get('/reviews', async (req, res) => {
+            const query = {};
+            const reviews = await reviewCollection.find(query).toArray();
+            res.send(reviews);
         });
 
         // POST API to create new user
@@ -89,6 +99,13 @@ async function run() {
                 payment_method_types: ['card']
             });
             res.send({ clientSecret: paymentIntent.client_secret });
+        });
+
+        // POST API to add new review
+        app.post('/review', async (req, res) => {
+            const review = req.body;
+            const addReviewResult = await reviewCollection.insertOne(review);
+            res.send(addReviewResult);
         });
 
         // PATCH API to update user info
