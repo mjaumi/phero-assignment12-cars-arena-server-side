@@ -87,23 +87,33 @@ async function run() {
         });
 
         // GET API to get specific user info
-        app.get('/user', async (req, res) => {
+        app.get('/user', verifyJWT, async (req, res) => {
             const email = req.query.email;
-            const query = { email };
-            const foundUser = await userCollection.findOne(query);
-            res.send(foundUser);
+            const decodedEmail = req.decoded.email;
+            if (email === decodedEmail) {
+                const query = { email };
+                const foundUser = await userCollection.findOne(query);
+                res.send(foundUser);
+            } else {
+                res.status(403).send({ message: 'Forbidden Access' });
+            }
         });
 
         // GET API to get orders by email
-        app.get('/orders', async (req, res) => {
+        app.get('/orders', verifyJWT, async (req, res) => {
             const email = req.query.email;
-            const query = { email };
-            const foundOrders = await orderCollection.find(query).toArray();
-            res.send(foundOrders);
+            const decodedEmail = req.decoded.email;
+            if (email === decodedEmail) {
+                const query = { email };
+                const foundOrders = await orderCollection.find(query).toArray();
+                res.send(foundOrders);
+            } else {
+                res.status(403).send({ message: 'Forbidden Access' });
+            }
         });
 
         // GET API to get specific order by id
-        app.get('/order/:id', async (req, res) => {
+        app.get('/order/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const foundOrder = await orderCollection.findOne(query);
@@ -133,7 +143,7 @@ async function run() {
         });
 
         // POST API for client secret of stripe
-        app.post('/create-payment-intent', async (req, res) => {
+        app.post('/create-payment-intent', verifyJWT, async (req, res) => {
             const order = req.body;
             const price = order.price;
             const amount = price * 100;
@@ -153,25 +163,31 @@ async function run() {
         });
 
         // PATCH API to update user info
-        app.patch('/user', async (req, res) => {
+        app.patch('/user', verifyJWT, async (req, res) => {
             const email = req.query.email;
-            const updatedBody = req.body;
-            const filter = { email };
-            const updatedUser = {
-                $set: {
-                    education: updatedBody.education,
-                    city: updatedBody.city,
-                    phone: updatedBody.phone,
-                    linkedIn: updatedBody.linkedIn,
-                    address: updatedBody.address
+            const decodedEmail = req.decoded.email;
+            if (email === decodedEmail) {
+
+                const updatedBody = req.body;
+                const filter = { email };
+                const updatedUser = {
+                    $set: {
+                        education: updatedBody.education,
+                        city: updatedBody.city,
+                        phone: updatedBody.phone,
+                        linkedIn: updatedBody.linkedIn,
+                        address: updatedBody.address
+                    }
                 }
+                const updateUser = await userCollection.updateOne(filter, updatedUser);
+                res.send(updateUser);
+            } else {
+                res.status(403).send({ message: 'Forbidden Access' });
             }
-            const updateUser = await userCollection.updateOne(filter, updatedUser);
-            res.send(updateUser);
         });
 
         // PATCH API for payment update
-        app.patch('/order/:id', async (req, res) => {
+        app.patch('/order/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
             const payment = req.body;
             const filter = { _id: ObjectId(id) };
