@@ -227,6 +227,14 @@ async function run() {
             res.send(deleteResult);
         });
 
+        // DELETE API for deleting parts with admin verification
+        app.delete('/part/:id', verifyJWT, verifyAdmin, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const deleteResult = await partCollection.deleteOne(query);
+            res.send(deleteResult);
+        });
+
     } finally {
 
     }
