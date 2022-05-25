@@ -67,10 +67,11 @@ async function run() {
             res.send(foundOrder);
         });
 
-        // GET API to get all the reviews
+        // GET API to get all the reviews with ascending order
         app.get('/reviews', async (req, res) => {
             const query = {};
-            const reviews = await reviewCollection.find(query).toArray();
+            const sortBy = { millTime: -1 };
+            const reviews = await reviewCollection.find(query).sort(sortBy).toArray();
             res.send(reviews);
         });
 
