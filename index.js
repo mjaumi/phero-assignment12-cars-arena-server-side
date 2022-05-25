@@ -122,7 +122,15 @@ async function run() {
             }
             const updateOrder = await orderCollection.updateOne(filter, updatedPayment);
             res.send(updateOrder);
-        })
+        });
+
+        // DELETE API for deleting order
+        app.delete('/order/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const deleteResult = await orderCollection.deleteOne(query);
+            res.send(deleteResult);
+        });
 
     } finally {
 
