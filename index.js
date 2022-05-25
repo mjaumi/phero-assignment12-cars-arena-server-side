@@ -46,6 +46,17 @@ async function run() {
 
         console.log('MongoDB Connected');
 
+        // admin verification
+        const verifyAdmin = async (req, res, next) => {
+            const requester = req.decoded.email;
+            const requesterAccount = await userCollection.findOne({ email: requester });
+            if (requesterAccount.role === 'admin') {
+                next();
+            } else {
+                res.status(403).send({ message: 'Forbidden Access' });
+            }
+        }
+
         /**
         * -----------------------
         * AUTHENTICATION API
@@ -161,6 +172,13 @@ async function run() {
             const addReviewResult = await reviewCollection.insertOne(review);
             res.send(addReviewResult);
         });
+
+        // POST API to add new product with admin verification
+        app.post('/parts', verifyJWT, verifyAdmin, async (req, res) => {
+            const parts = req.body;
+            const addPartsResult = await partCollection.insertOne(parts);
+            res.send(addPartsResult);
+        })
 
         // PATCH API to update user info
         app.patch('/user', verifyJWT, async (req, res) => {
