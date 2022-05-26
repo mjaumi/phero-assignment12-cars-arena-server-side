@@ -43,6 +43,8 @@ async function run() {
         const userCollection = client.db('cars-arena').collection('users');
         const orderCollection = client.db('cars-arena').collection('orders');
         const reviewCollection = client.db('cars-arena').collection('reviews');
+        const summaryCollection = client.db('cars-arena').collection('summary');
+        const queryCollection = client.db('cars-arena').collection('query');
 
         console.log('MongoDB Connected');
 
@@ -75,11 +77,11 @@ async function run() {
          * SERVICES API
          * ------------------------
          */
-        // GET API to get first 6 parts
-        app.get('/topSixParts', async (req, res) => {
+        //GET API to get all the summary data
+        app.get('/summary', async (req, res) => {
             const query = {};
-            const firstSixParts = await partCollection.find(query).limit(6).toArray();
-            res.send(firstSixParts);
+            const summary = await summaryCollection.find(query).toArray();
+            res.send(summary);
         });
 
         // GET API to get all parts
@@ -159,7 +161,7 @@ async function run() {
             const user = await userCollection.findOne({ email });
             const isAdmin = user.role === 'admin';
             res.send({ admin: isAdmin });
-        })
+        });
 
         // POST API to create new user
         app.post('/user', async (req, res) => {
@@ -200,7 +202,14 @@ async function run() {
             const parts = req.body;
             const addPartsResult = await partCollection.insertOne(parts);
             res.send(addPartsResult);
-        })
+        });
+
+        // POST API to add new query
+        app.post('/query', async (req, res) => {
+            const query = req.body;
+            const addQueryResult = await queryCollection.insertOne(query);
+            res.send(addQueryResult);
+        });
 
         // PATCH API to update user info
         app.patch('/user', verifyJWT, async (req, res) => {
