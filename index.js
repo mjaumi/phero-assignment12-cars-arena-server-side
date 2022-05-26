@@ -139,6 +139,12 @@ async function run() {
             res.send(reviews);
         });
 
+        app.get('/users', verifyJWT, verifyAdmin, async (req, res) => {
+            const query = {};
+            const users = await userCollection.find(query).toArray();
+            res.send(users);
+        });
+
         // POST API to create new user
         app.post('/user', async (req, res) => {
             const newUser = req.body;
@@ -217,6 +223,19 @@ async function run() {
             }
             const updateOrder = await orderCollection.updateOne(filter, updatedPayment);
             res.send(updateOrder);
+        });
+
+        // PATCH API to make an user admin with admin authentication
+        app.patch('/user/:id', verifyJWT, verifyAdmin, async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const updatedUser = {
+                $set: {
+                    role: 'admin'
+                }
+            }
+            const updateUser = await userCollection.updateOne(filter, updatedUser);
+            res.send(updateUser);
         });
 
         // DELETE API for deleting order
