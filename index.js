@@ -276,6 +276,20 @@ async function run() {
             res.send(updateUser);
         });
 
+        // PATCH API to update parts quantity
+        app.patch('/updateParts/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const available = req.body;
+            const filter = { _id: ObjectId(id) };
+            const updatedParts = {
+                $set: {
+                    availableQuantity: available.availableQuantity
+                }
+            }
+            const updatePart = await partCollection.updateOne(filter, updatedParts);
+            res.send(updatePart);
+        });
+
         // DELETE API for deleting order
         app.delete('/order/:id', async (req, res) => {
             const id = req.params.id;
