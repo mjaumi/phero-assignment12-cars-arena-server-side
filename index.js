@@ -153,6 +153,14 @@ async function run() {
             res.send(orders);
         });
 
+        // GET API to check the role
+        app.get('/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = await userCollection.findOne({ email });
+            const isAdmin = user.role === 'admin';
+            res.send({ admin: isAdmin });
+        })
+
         // POST API to create new user
         app.post('/user', async (req, res) => {
             const newUser = req.body;
