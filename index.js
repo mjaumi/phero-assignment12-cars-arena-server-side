@@ -139,10 +139,18 @@ async function run() {
             res.send(reviews);
         });
 
+        // GET API to get all the users with admin verification
         app.get('/users', verifyJWT, verifyAdmin, async (req, res) => {
             const query = {};
             const users = await userCollection.find(query).toArray();
             res.send(users);
+        });
+
+        // GET API to get all the orders with admin verification
+        app.get('/allOrders', verifyJWT, verifyAdmin, async (req, res) => {
+            const query = {};
+            const orders = await orderCollection.find(query).toArray();
+            res.send(orders);
         });
 
         // POST API to create new user
@@ -222,6 +230,19 @@ async function run() {
                 }
             }
             const updateOrder = await orderCollection.updateOne(filter, updatedPayment);
+            res.send(updateOrder);
+        });
+
+        // PATCH API for payment update
+        app.patch('/shipOrder/:id', verifyJWT, verifyAdmin, async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const updatedStatus = {
+                $set: {
+                    status: 'shipped',
+                }
+            }
+            const updateOrder = await orderCollection.updateOne(filter, updatedStatus);
             res.send(updateOrder);
         });
 
